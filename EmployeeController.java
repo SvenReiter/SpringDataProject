@@ -22,48 +22,32 @@ public class EmployeeController {
         this.repository = repository;
     }
 
+    /**
+     *
+     * @param employee - json representation
+     * @return HttpStatus.OK                    "Employee{employee}" */
     @PostMapping
     private ResponseEntity<Employee> save(@RequestBody Employee employee) {
         return ResponseEntity.status(HttpStatus.OK).body(repository.save(employee));
     }
 
+    /**
+     * @param id - to remove Employee's ID
+     * @return HttpStatus.OK                    "Employee[<id>] removed!" */
     @PostMapping("remove/{id}")
     private ResponseEntity<String> removeEmployee(@PathVariable("id")String id) {
         Employee employee= repository.getReferenceById(Long.parseLong(id));
-        if(!employee.getProjects().isEmpty())
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Employee["+id+"] still references Project/s!");
         repository.deleteById(Long.parseLong(id));
-        return ResponseEntity.status(HttpStatus.OK).body("Employee["+id+"] removed");
+        return ResponseEntity.status(HttpStatus.OK).body("Employee["+id+"] removed!");
     }
 
     /**
-     * @param id
-     * @post if Employee[id] is still referencing to/ gets referenced from Project/s,
-     *       concerning Projects get removed as well.
-     */
-    @PostMapping("removeCascade/{id}")
-    private ResponseEntity<String> removeCascadeEmployee(@PathVariable("id")String id) {
-        if(repository.findById(Long.parseLong(id)).isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+id+"] not found");
-        Employee employee= repository.getReferenceById(Long.parseLong(id));
-        StringBuilder sb= new StringBuilder();
-        if(!employee.getProjects().isEmpty()) {
-            sb.append(" and also its reference/s Project/s[");
-            for(int i=0; i<employee.getProjects().size()-1; ++i) {
-                employee.getProjects().get(i).getEmployees().remove(employee);
-                sb.append(employee.getProjects().get(i).getName()+" ,");
-            }
-            employee.getProjects().get(employee.getProjects().size()-1).getEmployees().remove(employee);
-            sb.append(employee.getProjects().get(employee.getProjects().size()-1).getName()+"]");
-        }
-        employee.setProjects(null);
-        repository.deleteById(Long.parseLong(id));
-        return ResponseEntity.status(HttpStatus.OK).body("Employee["+id+"] removed"+ sb);
-    }
-
+     * @param id - demanded Employee's ID
+     * @return HttpStatus.OK                    "Employee[<id>]"
+     *         HttpStatus.NOT_FOUND             "Employee[<id>] not found!" */
     @GetMapping("/get/{id}")
     private ResponseEntity<String> getEmployee(@PathVariable("id")String id) {
-    Employee result= null;
+        Employee result= null;
         for(Employee e: repository.findAll()) {
             if(e.getId()== Long.parseLong(id)) {
                 result= e;
@@ -73,6 +57,42 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+id+"] not found!");
     }
 
+    /**
+     * @param eId - Employee's ID to designate supervisor to
+     * @param sId - the supervisors Employee's ID
+     * @return HttpStatus.NOT_FOUND             "Employee[<eId>] not found!"
+     *         HttpStatus.NOT_FOUND             "Employee[<sId>] not found!"
+     *         HttpStatus.OK                    "Supervisor set!" */
+    @PostMapping("supervisor/{eId}/{sId}")
+    private ResponseEntity<String> setSupervision(@PathVariable("eId")String eId, @PathVariable("sId")String sId) {
+        Employee employee= null;
+        for(Employee e: repository.findAll()) {
+            if(e.getId().compareTo(Long.parseLong(eId))== 0) {
+                employee= e;
+                break;
+            }
+        }
+        if(employee== null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+eId+"] not found!");
+        }
+        Employee supervisor= null;
+        for(Employee s: repository.findAll()) {
+            if(s.getId().compareTo(Long.parseLong(sId))== 0) {
+                supervisor= s;
+                break;
+            }
+        }
+        if(supervisor== null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+sId+"] not found!");
+        }
+        employee.getSupervision().add(supervisor);
+        repository.flush();
+        return ResponseEntity.status(HttpStatus.OK).body("Supervisor set!");
+    }
+
+    /**
+     * @param sex - f/F: female, m/M: male
+     * @return  List of <full Names> of <Employees having matched sex to <sex> */
     @GetMapping("/bySex/{sex}")
     private ResponseEntity<List<String>> getBySex(@PathVariable("sex")char sex) {
         List<String> result= new ArrayList<>();
@@ -82,6 +102,10 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
 }
 
+    /**
+     * @param date - yyyy-MM-dd
+     * @return  List of <fullNames> of <Employee>s older than <date>
+     */
     @GetMapping("/byBirthdayBefore/{date}")
     private ResponseEntity<List<String>> getByBirthdayBefore(@PathVariable("date")LocalDate date) {
         List<String> result= new ArrayList<>();
@@ -91,6 +115,9 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
 }
 
+    /**
+     * @param salary - salary to compare with
+     * @return  List of <fullNames> of <Employee>s getting less salary than given <salary> */
     @GetMapping("/bySalaryLessThan/{salary}")
     private ResponseEntity<List<String>> getSalaryLessThan(@PathVariable("salary")float salary) {
         List<String> result = new ArrayList<>();
@@ -100,6 +127,8 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    /**
+     * @return HttpStatus.OK                    <Employee> having the highest salary */
     @GetMapping("/maxSalary")
     private ResponseEntity<Employee> getEmployeeByMaxSalary() {
         return ResponseEntity.status(HttpStatus.OK).body(repository.findTopByOrderBySalaryDesc().get(0));

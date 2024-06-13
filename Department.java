@@ -22,8 +22,7 @@ public class Department {
     private String name;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "employee_id")
-    private Employee manages;
+    private Employee manager;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name= "works_for",
@@ -36,6 +35,19 @@ public class Department {
     private List<Employee> worksFor;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "project_id")
+    @JoinTable(name= "controls",
+            inverseJoinColumns = {
+                    @JoinColumn(name= "project_id", referencedColumnName = "id")
+            })
     private List<Project> controls;
+
+    public List<Project> addProject(Project p) {
+        controls.add(p);
+        return controls;
+    }
+
+    public List<Employee> addEmployeeAsWorksFor(Employee e) {
+        worksFor.add(e);
+        return worksFor;
+    }
 }

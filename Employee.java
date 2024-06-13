@@ -1,7 +1,6 @@
 package org.example.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,8 +13,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 public class Employee {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
@@ -36,31 +38,15 @@ public class Employee {
     @JoinColumn(name = "employee_id")
     private List<Employee> supervision;
 
-    @ManyToMany(mappedBy= "employees", fetch= FetchType.LAZY)
-    private List<Project> projects;
-
-    public void addProject(Project project) {
-        projects.add(project);
-    }
-
-    public String toString() {
-        StringBuilder result= new StringBuilder("{id:"+id+", first_name:"+firstName+", last_name:"+lastName+", address:"
-                                                +address+", birthday:"+birthday+", sex:"+sex+",supervision: {");
-        if(supervision!= null && !supervision.isEmpty()) {
-            for (int i=0; i<supervision.size()-1; ++i) {
-                result.append(supervision.get(i).getFirstName() + " " + supervision.get(i).getLastName() + ", ");
-            }
-            result.append(supervision.get(supervision.size()-1).getFirstName()+" "+
-                          supervision.get(supervision.size()-1).getLastName());
-        }
-        result.append("}, projects: {");
-        if(projects!= null) {
-            for(int i=0; i< projects.size()-1; ++i) {
-                result.append(projects.get(i).getName()+ ", ");
-            }
-            result.append(projects.get(projects.size()-1).getName());
-        }
-        result.append("}}");
-        return result.toString();
+    public Employee(Long id, String firstName, String lastName, String address, LocalDate birthday, char sex,
+                    float salary, List<Employee> supervision/*, List<Project> projects*/) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.birthday = birthday;
+        this.sex = sex;
+        this.salary = salary;
+        this.supervision = supervision;
     }
 }

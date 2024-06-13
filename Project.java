@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name= "project")
@@ -21,29 +20,7 @@ public class Project {
     private Long id;
     private String name;
 
-    @ManyToMany(fetch= FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name= "works_on",
-        joinColumns = {
-            @JoinColumn(name= "project_id", referencedColumnName = "id")
-        },
-        inverseJoinColumns = {
-            @JoinColumn(name= "employee_id", referencedColumnName = "id")
-        })
-    private List<Employee> employees;
-
-    public void addEmployee(Employee employee) {
-        employees.add(employee);
-    }
-
-    public String toString() {
-        StringBuilder result= new StringBuilder("{id:"+id+", name:"+name+",employees: {");
-        if(employees!= null && !employees.isEmpty()) {
-            for (int i=0; i<employees.size()-1; ++i) {
-                result.append(employees.get(i).getFirstName() + " " + employees.get(i).getLastName() + ", ");
-            }
-            result.append(employees.get(employees.size()-1).getFirstName() + " " + employees.get(employees.size()-1).getLastName());
-        }
-        result.append("}}");
-        return result.toString();
-    }
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
+    private List<WorksOn> worksOn;
 }
