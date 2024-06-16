@@ -32,6 +32,29 @@ public class EmployeeController {
     }
 
     /**
+     * @param employee - new Employee-context
+     * @param id - Employee's id
+     * @return HttpStatus.OK                    "Employee[<id>] got changed!"
+     *         HttpStatus.NOT_FOUND             "Employee[<id>] not found!" */
+    @PostMapping("change/{id}")
+    private ResponseEntity<String> change(@RequestBody Employee employee, @PathVariable("id")Long id) {
+        for(Employee e: repository.findAll()) {
+            if(e.getId().compareTo(id)== 0) {
+                e.setBirthday(employee.getBirthday());
+                e.setAddress(employee.getAddress());
+                e.setSex(employee.getSex());
+                e.setFirstName(employee.getFirstName());
+                e.setLastName(employee.getLastName());
+                e.setSalary(employee.getSalary());
+                e.setSupervision(employee.getSupervision());
+                repository.flush();
+                return ResponseEntity.status(HttpStatus.OK).body("Employee["+id+"] got changed!");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+id+"] not found!");
+    }
+
+    /**
      * @param id - to remove Employee's ID
      * @return HttpStatus.OK                    "Employee[<id>] removed!" */
     @PostMapping("remove/{id}")
@@ -104,8 +127,7 @@ public class EmployeeController {
 
     /**
      * @param date - yyyy-MM-dd
-     * @return  List of <fullNames> of <Employee>s older than <date>
-     */
+     * @return  List of <fullNames> of <Employee>s older than <date> */
     @GetMapping("/byBirthdayBefore/{date}")
     private ResponseEntity<List<String>> getByBirthdayBefore(@PathVariable("date")LocalDate date) {
         List<String> result= new ArrayList<>();

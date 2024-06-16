@@ -30,11 +30,22 @@ public class DepartmentController {
         this.projectRepository= projectRepository;
     }
 
+    @GetMapping("getDepartmentOfProject/{pId}")
+    private ResponseEntity<String>getDepartmentOfProject(@PathVariable("pId")Long pId) {
+        for(Department d: departmentRepository.findAll()) {
+            for(Project p: d.getControls()) {
+                if(p.getId().compareTo(pId)== 0) {
+                    return ResponseEntity.status(HttpStatus.OK).body(d.toString());
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No relation of Project["+pId+"] to any <Department> found!");
+    }
+
     /**
      * @param dId
      * @return HttpStatus.OK                    <Nr of employees>
-     * @return HttpStatus.EXPECTATION_FAILED    0
-     */
+     * @return HttpStatus.EXPECTATION_FAILED    0 */
     @GetMapping("nrOfEmployees/{dId}")
     private ResponseEntity<Integer> getNrOfEmployees(@PathVariable("dId")String dId) {
         for(Department d: departmentRepository.findAll()) {
@@ -56,9 +67,9 @@ public class DepartmentController {
     /**
      * @param dId
      * @param pId
-     * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>] not found!"
-     * @return HttpStatus.EXPECTATION_FAILED    "Project[<pId>] not found!"
-     * @return HttpStatus.OK                    "Project <Project.name> added to Department <Department.name>!" */
+     * @return HttpStatus.NOT_FOUND    "Department[<dId>] not found!"
+     * @return HttpStatus.NOT_FOUND    "Project[<pId>] not found!"
+     * @return HttpStatus.OK           "Project <Project.name> added to Department <Department.name>!" */
     @PostMapping("addProject/{dId}/{pId}")
     private ResponseEntity<String> addProject(@PathVariable("dId")String dId, @PathVariable("pId")String pId) {
         Department d= null;
@@ -69,7 +80,7 @@ public class DepartmentController {
             }
         }
         if(d== null) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Department["+dId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Department["+dId+"] not found!");
         }
 
         Project p= null;
@@ -80,9 +91,15 @@ public class DepartmentController {
             }
         }
         if(p== null) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Project["+pId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project["+pId+"] not found!");
         }
 
+        for(Project pOfD: d.getControls()) {
+            if(pOfD.getId().compareTo(p.getId())== 0) {
+                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(
+                        "Project["+pId+"] already added to Department["+dId+"]!");
+            }
+        }
         d.setControls(d.addProject(p));
         departmentRepository.flush();
         return ResponseEntity.status(HttpStatus.OK).body("Project "+p.getName()+" added to Department "+d.getName()+"!");
@@ -91,9 +108,9 @@ public class DepartmentController {
     /**
      * @param dId
      * @param eId
-     * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>] not found!"
-     * @return HttpStatus.EXPECTATION_FAILED    "Employee[<eId>] not found!"
-     * @return HttpStatus.OK                    "Employee <Employee.fullName> works for Department <Department.name>!" */
+     * @return HttpStatus.NOT_FOUND    "Department[<dId>] not found!"
+     * @return HttpStatus.NOT_FOUND    "Employee[<eId>] not found!"
+     * @return HttpStatus.OK           "Employee <Employee.fullName> works for Department <Department.name>!" */
     @PostMapping("addEmployeeWorkingFor/{dId}/{eId}")
     private ResponseEntity<String> addEmployee(@PathVariable("dId")String dId, @PathVariable("eId")String eId) {
         Department d= null;
@@ -104,7 +121,7 @@ public class DepartmentController {
             }
         }
         if(d== null) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Department["+dId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Department["+dId+"] not found!");
         }
 
         Employee e= null;
@@ -115,7 +132,7 @@ public class DepartmentController {
             }
         }
         if(e== null) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Employee["+eId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+eId+"] not found!");
         }
 
         d.setWorksFor(d.addEmployeeAsWorksFor(e));

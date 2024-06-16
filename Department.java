@@ -50,4 +50,12 @@ public class Department {
         worksFor.add(e);
         return worksFor;
     }
+
+    public String toString() {
+        String result= "{\n";
+        result+= "\t\"id\": "+id+",\n";
+        result+= "\t\"name\": "+name+",\n";
+        result+= "\t\"manager\": "+manager.getFirstName()+" "+manager.getLastName()+",\n}";
+        return result;
+    }
 }

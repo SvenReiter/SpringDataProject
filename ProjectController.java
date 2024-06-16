@@ -1,7 +1,9 @@
 package org.example.controller;
 
+import org.example.model.Department;
 import org.example.model.Project;
 import org.example.model.WorksOn;
+import org.example.repository.DepartmentRepository;
 import org.example.repository.EmployeeRepository;
 import org.example.repository.ProjectRepository;
 import org.example.repository.WorksOnRepository;
@@ -11,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/project") //  @RequestMapping("/project") NOT @RequestMapping(name="/project") -> the significant parameter is not called "name"!!!
+@RequestMapping("/project") // NOT @RequestMapping(name="/project") -> the significant parameter is not called "name"!!!
 public class ProjectController {
     @Autowired
     private ProjectRepository projectRepository;
@@ -22,11 +24,15 @@ public class ProjectController {
     @Autowired
     private WorksOnRepository worksOnRepository;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     public ProjectController(ProjectRepository projectRepository, EmployeeRepository employeeRepository,
-                             WorksOnRepository worksOnRepository) {
+                             WorksOnRepository worksOnRepository, DepartmentRepository departmentRepository) {
         this.projectRepository= projectRepository;
         this.employeeRepository= employeeRepository;
         this.worksOnRepository= worksOnRepository;
+        this.departmentRepository= departmentRepository;
     }
 
     /**
@@ -36,8 +42,6 @@ public class ProjectController {
     private ResponseEntity<Project> save(@RequestBody Project project) {
         return ResponseEntity.status(HttpStatus.OK).body(projectRepository.save(project));
     }
-
-    //todo ändern und löschen von Datensätzen
 
     /**
      * @param id - Project's id
@@ -55,14 +59,47 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project["+id+"] not found!");
     }
 
+    @PostMapping("removeCascade/{id}")
+    private ResponseEntity<String> removeCascade(@PathVariable("id")Long id) {
+        Project project= null;
+        for(Project p: projectRepository.findAll()) {
+            if(p.getId().compareTo(id)== 0) {
+                project= p;
+            }
+        }
+        if(project== null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project[" + id + "] not found!");
+        }
+        StringBuilder result= new StringBuilder(
+                "Project["+id+"] deleted in Project-table.\nReference/s to Project["+id+"] found/deleted in/from\n\t");
+
+        for(WorksOn w: worksOnRepository.findAll()) {
+            if(w.getProject_id().compareTo(id)== 0) {
+                result.append("-employeeWorksOnProject["+w.getId()+"]\n\t");
+                worksOnRepository.delete(w);
+                worksOnRepository.flush();
+            }
+        }
+
+        for(Department d: departmentRepository.findAll()) {
+            if(d.getControls().contains(project)) {
+                result.append("-controls["+d.getId()+"]\n\t");
+                d.getControls().remove(project);
+                departmentRepository.save(d);
+                departmentRepository.flush();
+            }
+        }
+        projectRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(result.toString());
+    }
+
     /**
      * @param id - Project's id
      * @return HttpStatus.OK                    "Project[<id>] removed!"
      *         HttpStatus.NOT_FOUND             "Project[<id>] not found!"
      *         HttpStatus.CONFLICT              "Project[<id>] still references Employee/s!" */
     @PostMapping("remove/{id}")
-    private ResponseEntity<String> removeProject(@PathVariable("id")String id) {
-        Project project= projectRepository.getReferenceById(Long.parseLong(id));
+    private ResponseEntity<String> remove(@PathVariable("id")String id) {
         boolean projectFound= false;
         for(Project p: projectRepository.findAll()) {
             if(p.getId().compareTo(Long.parseLong(id))== 0) {
