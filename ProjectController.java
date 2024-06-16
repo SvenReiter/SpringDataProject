@@ -59,6 +59,13 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project["+id+"] not found!");
     }
 
+    /**
+     * @param id - Project's id
+     * @return  HttpStatus.NOT_FOUND             "Project[<id>] not found!"
+     *          HttpStatus.OK                    "Project[<id>] deleted in Project-table.
+     *                                           Reference/s to Project[<id>] found/deleted in/from
+     *                                              -employeeWorksOnProject[n]
+     *                                              -controls[m] */
     @PostMapping("removeCascade/{id}")
     private ResponseEntity<String> removeCascade(@PathVariable("id")Long id) {
         Project project= null;
