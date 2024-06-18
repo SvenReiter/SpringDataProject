@@ -11,6 +11,10 @@ public class Application {
         project/removeProjectCascade is working
             [removes <Project>s specific dataset from employee_works_on_project-, project-, controls-table]
         ProjectController.change(Project, Long) implemented/works
+        ProjectController.getDepartmentOf(Long pId)
+            for retrieving Department by requesting the ProjectController
+        EmployeeController.getSupervision
+            provides full list of employee.fullName supervises employee.fullName
      */
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);

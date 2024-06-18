@@ -81,32 +81,48 @@ public class EmployeeController {
     }
 
     /**
-     * @param eId - Employee's ID to designate supervisor to
+     * @return HttpStatus.OK                    List of "Employee.fullName supervises Employee.fullName" */
+    @GetMapping("getSupervision")
+    private ResponseEntity<String>getSupervision() {
+        StringBuilder result= new StringBuilder();
+        for(Employee e: repository.findAll()) {
+            if(!e.getSupervision().isEmpty()) {
+                for(Employee es: e.getSupervision()) {
+                    result.append(  e.getFirstName()+" "+e.getLastName()+" supervises "+
+                                    es.getFirstName()+" "+es.getLastName()+"\n");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(result.toString());
+    }
+
+    /**
      * @param sId - the supervisors Employee's ID
+     * @param eId - Employee's ID to designate supervisor to
      * @return HttpStatus.NOT_FOUND             "Employee[<eId>] not found!"
-     *         HttpStatus.NOT_FOUND             "Employee[<sId>] not found!"
+     *         HttpStatus.NOT_FOUND             "Employee[<eId>] not found!"
      *         HttpStatus.OK                    "Supervisor set!" */
-    @PostMapping("supervisor/{eId}/{sId}")
-    private ResponseEntity<String> setSupervision(@PathVariable("eId")String eId, @PathVariable("sId")String sId) {
+    @PostMapping("setSupervisor/{sId}/{eId}")
+    private ResponseEntity<String> setSupervision(@PathVariable("sId")String sId, @PathVariable("eId")String eId) {
         Employee employee= null;
         for(Employee e: repository.findAll()) {
-            if(e.getId().compareTo(Long.parseLong(eId))== 0) {
+            if(e.getId().compareTo(Long.parseLong(sId))== 0) {
                 employee= e;
                 break;
             }
         }
         if(employee== null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+eId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+sId+"] not found!");
         }
         Employee supervisor= null;
         for(Employee s: repository.findAll()) {
-            if(s.getId().compareTo(Long.parseLong(sId))== 0) {
+            if(s.getId().compareTo(Long.parseLong(eId))== 0) {
                 supervisor= s;
                 break;
             }
         }
         if(supervisor== null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+sId+"] not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+eId+"] not found!");
         }
         employee.getSupervision().add(supervisor);
         repository.flush();

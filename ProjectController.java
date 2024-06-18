@@ -87,7 +87,6 @@ public class ProjectController {
                 worksOnRepository.flush();
             }
         }
-
         for(Department d: departmentRepository.findAll()) {
             if(d.getControls().contains(project)) {
                 result.append("-controls["+d.getId()+"]\n\t");
@@ -140,5 +139,33 @@ public class ProjectController {
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project["+id+"] not found!");
+    }
+
+    /**
+     * @param pId - Project's id
+     * @return HttpStatus.OK                    <Department> responsable for Project[<id>]
+     *         HttpStatus.NOT_FOUND             "Project[<id>] not found"
+     *         HttpStatus.NOT_FOUND             "No Department found referencing to Project[<id>]" */
+    @GetMapping("getDepartment/{pId}")
+    private ResponseEntity<String> getDepartmentOf(@PathVariable("pId")Long pId) {
+        Department result= null;
+        boolean projectAvailable= false;
+        for(Project p: projectRepository.findAll()) {
+            if(p.getId()== pId) {
+                projectAvailable= true;
+                break;
+            }
+        }
+        if(!projectAvailable) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project[" + pId + "] not found");
+        }
+        for(Department d: departmentRepository.findAll()) {
+            for(Project p: d.getControls()) {
+                if(p.getId().equals(pId)) {
+                    return ResponseEntity.status(HttpStatus.OK).body(d.toString());
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Department found referencing to Project["+pId+"]");
     }
 }

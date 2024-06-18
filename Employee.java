@@ -39,7 +39,7 @@ public class Employee {
     private List<Employee> supervision;
 
     public Employee(Long id, String firstName, String lastName, String address, LocalDate birthday, char sex,
-                    float salary, List<Employee> supervision/*, List<Project> projects*/) {
+                    float salary, List<Employee> supervision) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
