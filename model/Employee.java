@@ -37,7 +37,7 @@ public class Employee {
     private String ssn;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "supervisor")
     private List<Employee> supervision;
 
     public Employee(Long id, String firstName, String lastName, String address, LocalDate birthday, char sex,

@@ -32,8 +32,7 @@ public class WorksOnController {
      * @return HttpStatus.NOT_FOUND         "Employee[<eId>] not found"
      *         HttpStatus.NOT_FOUND         "Project[<pId>] not found"
      *         HttpStatus.ALREADY_REPORTED  "Employee[<eId>] is already working on Project[<pId>]"
-     *         HttpStatus.OK                "Employee[<eId>] works Project[<pId>]!"
-     */
+     *         HttpStatus.OK                "Employee[<eId>] works Project[<pId>]!" */
     @PostMapping("bind/{eId}/{pId}")
     private ResponseEntity<String>makeEmployeeWorkOnProject(@PathVariable("eId")String eId,
                                                             @PathVariable("pId")String pId) {
@@ -67,13 +66,11 @@ public class WorksOnController {
     }
 
     /**
-     *
      * @param eId
      * @param pId
      * @param hrs
      * @return HttpStatus.NOT_FOUND         "Employee[<eId>] not found"
-     *         HttpStatus.OK                "Employee[<eId>] worked <wo.getHours()>hrs on Project[<pId>] so far"
-     */
+     *         HttpStatus.OK                "Employee[<eId>] worked <wo.getHours()>hrs on Project[<pId>] so far" */
     @PostMapping("incrementHours/{eId}/{pId}/{hrs}")
     private ResponseEntity<String>incrHrs(@PathVariable("eId")String eId, @PathVariable("pId")String pId,
                                           @PathVariable("hrs")String hrs) {

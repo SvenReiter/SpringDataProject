@@ -37,9 +37,7 @@ public class ProjectController {
         this.departmentRepository= departmentRepository;
     }
 
-    //todo TESTTESTTEST
     /**
-     *
      * @param dId - departmentsId of Project[pId]
      * @param pId - Projects id
      * @param location
@@ -54,16 +52,16 @@ public class ProjectController {
             if(d.getId().compareTo(dId)== 0) {
                 for(Project p: d.getControls()) {
                     if(p.getId().compareTo(pId)== 0) {
-                        String previousLocation= p.getLocation();
                         p.setLocation(location);
                         projectRepository.flush();
-                        if(d.getLocations()== null)
-                            d.setLocations(new HashSet<>());
-                        if(previousLocation!= null)
-                            d.getLocations().remove(previousLocation);
-                        d.getLocations().add(location);
+
+                        d.getLocations().clear();
+                        for(Project project: d.getControls()) {
+                            d.addLocation(project.getLocation());
+                        }
                         departmentRepository.flush();
-                        return ResponseEntity.status(HttpStatus.OK).body(location + " added to Department["+dId+"] and Project["+pId+"]");
+                        return ResponseEntity.status(HttpStatus.OK).body(location +
+                                " added to Department["+dId+"] and Project["+pId+"]");
                     }
                 }
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project["+pId+"] not found!");
@@ -129,7 +127,8 @@ public class ProjectController {
                 result.append("-controls["+d.getId()+"]\n\t");
                 d.getControls().remove(project);
                 departmentRepository.save(d);
-                d.setLocations(new HashSet<>());
+
+                d.getLocations().clear();
                 for(Project p: d.getControls()) {
                     d.addLocation(p.getLocation());
                 }
@@ -191,7 +190,6 @@ public class ProjectController {
      *         HttpStatus.NOT_FOUND             "No Department found referencing to Project[<id>]" */
     @GetMapping("getDepartment/{pId}")
     private ResponseEntity<String> getDepartmentOf(@PathVariable("pId")Long pId) {
-        Department result= null;
         boolean projectAvailable= false;
         for(Project p: projectRepository.findAll()) {
             if(p.getId()== pId) {
