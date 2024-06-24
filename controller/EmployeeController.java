@@ -54,11 +54,14 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee["+id+"] not found!");
     }
 
+    //todo remove, removeCascade
+
     /**
      * @param id - to remove Employee's ID
      * @return HttpStatus.OK                    "Employee[<id>] removed!" */
     @PostMapping("remove/{id}")
     private ResponseEntity<String> removeEmployee(@PathVariable("id")String id) {
+        //todo check what happens when <Employee> having supervisor gets removed
         Employee employee= repository.getReferenceById(Long.parseLong(id));
         repository.deleteById(Long.parseLong(id));
         return ResponseEntity.status(HttpStatus.OK).body("Employee["+id+"] removed!");

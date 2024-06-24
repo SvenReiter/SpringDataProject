@@ -23,8 +23,15 @@ public class Department {
     private Long id;
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Employee manager;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name= "manages",
+            joinColumns = {
+                    @JoinColumn(name= "department_id", referencedColumnName = "id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name= "employee_id", referencedColumnName = "id")
+            })
+    private List<Management> management;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name= "works_for",
@@ -67,7 +74,7 @@ public class Department {
         String result= "{\n";
         result+= "\t\"id\": "+id+",\n";
         result+= "\t\"name\": "+name+",\n";
-        result+= "\t\"manager\": "+manager.getFirstName()+" "+manager.getLastName()+",\n}";
+//        result+= "\t\"manager\": "+manager.getFirstName()+" "+manager.getLastName()+",\n}";
         return result;
     }
 }

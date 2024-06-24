@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/management")
@@ -31,11 +30,33 @@ public class ManagementController {
     DepartmentRepository departmentRepository;
 
     /**
+     * @param dId   Departments ID to query the management of
+     * @return HttpStatus.NOT_FOUND             ""
+     * @return HttpStatus.OK                    "<Employee[]> */
+    @GetMapping("get/{dId}")
+    ResponseEntity<List<Employee>>get(@PathVariable("dId")Long dId) {
+        List<Employee> result= new ArrayList<>();
+        for(Department d: departmentRepository.findAll()) {
+            if(d.getId().compareTo(dId)== 0) {
+                for(Management m: d.getManagement()) {
+                    for(Employee e: employeeRepository.findAll()) {
+                        if(e.getId().compareTo(m.getEmployee_id())== 0) {
+                            result.add(e);
+                        }
+                    }
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+
+    /**
      * @param dId
      * @param eId
      * @param startDate  dd-MM-yyyy
-     * @return HttpStatus.EXPECTATION_FAILED    "Employee[<eId>] not found!"
-     * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>] not found!"
+     * @return HttpStatus.NOT_FOUND             "Employee[<eId>] not found!"
+     * @return HttpStatus.NOT_FOUND             "Department[<dId>] not found!"
      * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>]'s manager already appointed,
      *                                           you might change the manager!"
      * @return HttpStatus.OK                    "<Employee[<eId>].name> is Department <Department[dId].name>s manager
@@ -59,7 +80,7 @@ public class ManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Department["+dId+"] not found!");
         }
 
-        if(department.getManager()!= null) {
+        if(department.getManagement()!= null && !department.getManagement().isEmpty()) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
                     "Department["+dId+"]'s manager already appointed, you might change the manager!");
         }
@@ -70,7 +91,11 @@ public class ManagementController {
         managesRepository.save(m);
         managesRepository.flush();
 
-        department.setManager(employee);
+        if(department.getManagement().isEmpty()) {
+            department.getManagement().add(m);
+        }else {
+            department.getManagement().set(0,m);
+        }
         departmentRepository.save(department);
         departmentRepository.flush();
         return ResponseEntity.status(HttpStatus.OK).body(employee.getFirstName()+" "+employee.getLastName()+
@@ -83,8 +108,8 @@ public class ManagementController {
      * @param dId
      * @param eId
      * @param startDate  dd-MM-yyyy
-     * @return HttpStatus.EXPECTATION_FAILED    "Employee[<eId>] not found!"
-     * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>] not found!"
+     * @return HttpStatus.NOT_FOUND             "Employee[<eId>] not found!"
+     * @return HttpStatus.NOT_FOUND             "Department[<dId>] not found!"
      * @return HttpStatus.EXPECTATION_FAILED    "Department[<dId>]'s manager is not appointed,
      *                                           you might bind a manager!"
      * @return HttpStatus.OK                    "<Employee[<eId>].name> is Department <Department[dId].name>s manager
@@ -108,7 +133,7 @@ public class ManagementController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Department["+dId+"] not found!");
         }
 
-        if(department.getManager()== null) {
+        if(department.getManagement()== null) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
                     "Department["+dId+"]'s manager is not appointed, you might bind a manager!");
         }
@@ -121,7 +146,7 @@ public class ManagementController {
                 managesRepository.save(m);
                 managesRepository.flush();
 
-                department.setManager(employee);
+                department.getManagement().set(0,m);
                 departmentRepository.save(department);
                 departmentRepository.flush();
                 return ResponseEntity.status(HttpStatus.OK).body(employee.getFirstName()+" "+employee.getLastName()+

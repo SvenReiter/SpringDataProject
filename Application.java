@@ -5,6 +5,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class Application {
+
+    /*
+        Implements ResponseEntity<List<Employee>>get(Long) in ManagementController;
+        Changed Departments OneToOne-Binding of Employee employee to OneToMany-Binding of List<Management> management;
+        Customizes <ManagementController>s ResponseEntity<String> change(String,String,LocalDate) and
+         ResponseEntity<String> bind(String, String, LocalDate);
+        Changes remove(@PathVariable("id")String id) to remove(@PathVariable("id")Long id) in ProjectController;
+        Changes getNrOfEmployees(@PathVariable("dId")String dId) to getNrOfEmployees(@PathVariable("dId")Long dId) in
+         DepartmentController;
+        Implements remove(@PathVariable("id")Long id) and removeCascade(@PathVariable("id")Long id) in
+         DepartmentController;
+     */
+
     /*  Employee:
             POST    /employee/                                                  Body/JSON Employee.json
             POST    /employee/change/{id}                                       Body/JSON Employee.json
@@ -22,6 +35,7 @@ public class Application {
             POST    /department/                                                Body/JSON Department.json
             POST    /department/addProject/{dId}/{pId}
             POST    /department/addEmployeeWorkingFor/{dId}/{eId}
+            POST    /department/remove/{id}
         Project:
             POST    /project/setLocation/{dId}/{pId}/{location}
             POST    /project/                                                   Body/JSON Project.json
@@ -31,6 +45,7 @@ public class Application {
             GET     /project/get/{id}
             GET     /project/getDepartment/{pId}
         Management:
+            GET     /management/get/{dId}
             POST    /management/bind/{eId}/{dId}/{startDate}
             POST    /management/change/{eId}/{dId}/{startDate}
         WorksOn:

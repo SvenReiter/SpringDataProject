@@ -1,15 +1,16 @@
 package org.example.controller;
 
-import org.example.model.Department;
-import org.example.model.Employee;
-import org.example.model.Project;
+import org.example.model.*;
 import org.example.repository.DepartmentRepository;
 import org.example.repository.EmployeeRepository;
+import org.example.repository.ManagementRepository;
 import org.example.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/department")
@@ -23,11 +24,46 @@ public class DepartmentController {
     @Autowired
     ProjectRepository projectRepository;
 
+    @Autowired
+    ManagementRepository managementRepository;
+
     public DepartmentController(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository,
-                                ProjectRepository projectRepository) {
+                                ProjectRepository projectRepository, ManagementRepository managementRepository) {
         this.departmentRepository= departmentRepository;
         this.employeeRepository= employeeRepository;
         this.projectRepository= projectRepository;
+        this.managementRepository= managementRepository;
+    }
+
+    //todo remove, removeCascade
+
+    /**
+     * @param id - Department's id
+     * @return HttpStatus.OK                    "Department[<id>] removed!"
+     *         HttpStatus.NOT_FOUND             "Department[<id>] not found!"
+     *         HttpStatus.CONFLICT              "Department[<id>] still references Employee/s!"
+     *         HttpStatus.CONFLICT              "Department[<id>] still references a Manager!" */
+    @PostMapping("remove/{id}")
+    private ResponseEntity<String> remove(@PathVariable("id")Long id) {
+        Department departmentToRemove= null;
+        for(Department d: departmentRepository.findAll()) {
+            if(d.getId().compareTo(id)== 0) {
+                departmentToRemove= d;
+                break;
+            }
+        }
+        if(departmentToRemove== null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Department[" + id + "] not found!");
+        }
+        if(!departmentToRemove.getControls().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Department["+id+"] still references Project/s!");
+        }
+        if(departmentToRemove.getManagement()!= null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Department["+id+"] still references a Manager!");
+        }
+
+        departmentRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Department["+id+"] removed");
     }
 
     @GetMapping("getDepartmentOfProject/{pId}")
@@ -47,9 +83,9 @@ public class DepartmentController {
      * @return HttpStatus.OK                    <Nr of employees>
      * @return HttpStatus.EXPECTATION_FAILED    0 */
     @GetMapping("nrOfEmployees/{dId}")
-    private ResponseEntity<Integer> getNrOfEmployees(@PathVariable("dId")String dId) {
+    private ResponseEntity<Integer> getNrOfEmployees(@PathVariable("dId")Long dId) {
         for(Department d: departmentRepository.findAll()) {
-            if(d.getId().compareTo(Long.parseLong(dId))== 0) {
+            if(d.getId().compareTo(dId)== 0) {
                 return ResponseEntity.status(HttpStatus.OK).body(d.getWorksFor().size());
             }
         }

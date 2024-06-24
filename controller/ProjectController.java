@@ -147,10 +147,10 @@ public class ProjectController {
      *         HttpStatus.NOT_FOUND             "Project[<id>] not found!"
      *         HttpStatus.CONFLICT              "Project[<id>] still references Employee/s!" */
     @PostMapping("remove/{id}")
-    private ResponseEntity<String> remove(@PathVariable("id")String id) {
+    private ResponseEntity<String> remove(@PathVariable("id")Long id) {
         boolean projectFound= false;
         for(Project p: projectRepository.findAll()) {
-            if(p.getId().compareTo(Long.parseLong(id))== 0) {
+            if(p.getId().compareTo(id)== 0) {
                 projectFound= true;
                 break;
             }
@@ -159,11 +159,11 @@ public class ProjectController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Project[" + id + "] not found!");
         }
         for(WorksOn wo: worksOnRepository.findAll()) {
-            if(wo.getProject_id().compareTo(Long.parseLong(id))== 0) {
+            if(wo.getProject_id().compareTo(id)== 0) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Project["+id+"] still references Employee/s!");
             }
         }
-        projectRepository.deleteById(Long.parseLong(id));
+        projectRepository.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body("Project["+id+"] removed");
     }
 
