@@ -7,15 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application {
 
     /*
-        Implements ResponseEntity<List<Employee>>get(Long) in ManagementController;
-        Changed Departments OneToOne-Binding of Employee employee to OneToMany-Binding of List<Management> management;
-        Customizes <ManagementController>s ResponseEntity<String> change(String,String,LocalDate) and
-         ResponseEntity<String> bind(String, String, LocalDate);
-        Changes remove(@PathVariable("id")String id) to remove(@PathVariable("id")Long id) in ProjectController;
-        Changes getNrOfEmployees(@PathVariable("dId")String dId) to getNrOfEmployees(@PathVariable("dId")Long dId) in
-         DepartmentController;
-        Implements remove(@PathVariable("id")Long id) and removeCascade(@PathVariable("id")Long id) in
-         DepartmentController;
+        Customizes a few Controller-arguments from String to Long;
+
      */
 
     /*  Employee:
