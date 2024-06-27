@@ -57,7 +57,7 @@ public class DepartmentController {
      * @return HttpStatus.NOT_FOUND    "Project[<pId>] not found!"
      * @return HttpStatus.OK           "Project <Project.name> added to Department <Department.name>!" */
     @PostMapping("addProject/{dId}/{pId}")
-    private ResponseEntity<String> addProject(@PathVariable("dId")String dId, @PathVariable("pId")String pId) {
+    private ResponseEntity<String> addProject(@PathVariable("dId")Long dId, @PathVariable("pId")Long pId) {
         return service.addProject(dId, pId);
     }
 
@@ -68,7 +68,7 @@ public class DepartmentController {
      * @return HttpStatus.NOT_FOUND    "Employee[<eId>] not found!"
      * @return HttpStatus.OK           "Employee <Employee.fullName> works for Department <Department.name>!" */
     @PostMapping("addEmployeeWorkingFor/{dId}/{eId}")
-    private ResponseEntity<String> addEmployee(@PathVariable("dId")String dId, @PathVariable("eId")String eId) {
+    private ResponseEntity<String> addEmployee(@PathVariable("dId")Long dId, @PathVariable("eId")Long eId) {
         return service.addEmployee(dId, eId);
     }
 }

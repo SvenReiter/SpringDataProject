@@ -1,21 +1,13 @@
 package org.example.controller;
 
-import org.example.model.Department;
 import org.example.model.Employee;
-import org.example.model.Management;
-import org.example.repository.DepartmentRepository;
-import org.example.repository.EmployeeRepository;
-import org.example.repository.ManagementRepository;
 import org.example.service.ManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

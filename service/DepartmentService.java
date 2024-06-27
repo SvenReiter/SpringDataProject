@@ -72,10 +72,10 @@ public class DepartmentService {
         return ResponseEntity.status(HttpStatus.OK).body(departmentRepository.save(department));
     }
 
-    public ResponseEntity<String> addProject(String dId, String pId) {
+    public ResponseEntity<String> addProject(Long dId, Long pId) {
         Department d= null;
         for(Department i: departmentRepository.findAll()) {
-            if(i.getId().compareTo(Long.parseLong(dId))== 0) {
+            if(i.getId().compareTo(dId)== 0) {
                 d= i;
                 break;
             }
@@ -86,7 +86,7 @@ public class DepartmentService {
 
         Project p= null;
         for(Project i: projectRepository.findAll()) {
-            if(i.getId().compareTo(Long.parseLong(pId))== 0) {
+            if(i.getId().compareTo(pId)== 0) {
                 p= i;
                 break;
             }
@@ -106,10 +106,10 @@ public class DepartmentService {
         return ResponseEntity.status(HttpStatus.OK).body("Project "+p.getName()+" added to Department "+d.getName()+"!");
     }
 
-    public ResponseEntity<String> addEmployee(String dId, String eId) {
+    public ResponseEntity<String> addEmployee(Long dId, Long eId) {
         Department d= null;
         for(Department i: departmentRepository.findAll()) {
-            if(i.getId().compareTo(Long.parseLong(dId))== 0) {
+            if(i.getId().compareTo(dId)== 0) {
                 d= i;
                 break;
             }
@@ -120,7 +120,7 @@ public class DepartmentService {
 
         Employee e= null;
         for(Employee i: employeeRepository.findAll()) {
-            if(i.getId().compareTo(Long.parseLong(eId))== 0) {
+            if(i.getId().compareTo(eId)== 0) {
                 e= i;
                 break;
             }

@@ -14,7 +14,12 @@ public class WorksOnController {
     @Autowired
     WorksOnService service;
 
-    //todo removeBonds, removeBondsCascade
+    //todo removeBonds (removeBondsCascade not necessary worksOn is a foreignkeytable)
+
+    @PostMapping("remove/{id}")
+    public ResponseEntity<String> removeBonding(@PathVariable("id")Long id) {
+        return service.removeBonding(id);
+    }
 
     /**
      * @param eId employees id

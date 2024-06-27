@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class WorksOnService {
     @Autowired
@@ -21,6 +23,51 @@ public class WorksOnService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private WorksOnRepository worksOnRepository;
+
+    public ResponseEntity<String> removeBonding(Long id) {
+        WorksOn wo= null;
+        for(WorksOn w: worksOnRepository.findAll()) {
+            if(w.getId().compareTo(id)== 0) {
+                wo= w;
+                break;
+            }
+        }
+        if(wo== null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("employeeWorksOnProject["+id+"] not found!");
+        }
+        
+        Project project= null;
+        for(Project p: projectRepository.findAll()) {
+            if(p.getId().compareTo(wo.getProject_id())== 0) {
+                project= p;
+                break;
+            }
+        }
+        List<WorksOn> worksOnDecr= project.getWorksOn();
+
+        for(WorksOn i: worksOnDecr) {
+            if(i.getProject_id().compareTo(project.getId())== 0) {
+                worksOnDecr.remove(i);
+                break;
+            }
+        }
+        project.setWorksOn(worksOnDecr);
+        projectRepository.save(project);
+        projectRepository.flush();
+        worksOnRepository.delete(wo);
+        worksOnRepository.deleteById(id);
+        worksOnRepository.flush();
+
+
+        /*todo test: Datensatz <Project> und <Employee> anlegen,
+           mit /worksOn/bind/{eId}/{pId} eine Referenz zwischen beiden schaffen und
+           dann removeBonding(Long) TESTEN
+         */
+        return ResponseEntity.status(HttpStatus.OK).body("Bonding["+id+"] removed!");
+    }
 
     public ResponseEntity<String> makeEmployeeWorkOnProject(Long eId, Long pId) {
         Employee employee= null;

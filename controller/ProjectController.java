@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.model.Project;
 import org.example.service.ProjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/project") // NOT @RequestMapping(name="/project") -> the significant parameter is not called "name"!!!
 public class ProjectController {
 
+    @Autowired
     private ProjectService service;
 
     /**
