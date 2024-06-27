@@ -6,11 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application {
 
-    /*
-        Customizes a few Controller-arguments from String to Long;
-
-     */
-
     /*  Employee:
             POST    /employee/                                                  Body/JSON Employee.json
             POST    /employee/change/{id}                                       Body/JSON Employee.json
